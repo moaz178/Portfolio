@@ -66,7 +66,7 @@ Certifications:
 
 const initialSuggestions = [
   "Who is Moaz?",
-  "AI skills?",
+  "What are his AI skills?",
 ];
 
 const GroqSidebar = ({ open, onClose }) => {
@@ -129,7 +129,7 @@ const GroqSidebar = ({ open, onClose }) => {
           { role: 'system', content: portfolioContext },
           { role: 'user', content: userQuery },
         ],
-        model: 'llama-3.3-70b-versatile',
+        model: 'gemma2-9b-it',
         temperature: 1,
         max_completion_tokens: 1024,
         top_p: 1,
