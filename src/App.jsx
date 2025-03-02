@@ -1,5 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Github as GitHub, Linkedin, Mail, ExternalLink, ChevronRight, Moon, Sun, ArrowUp, Star } from 'lucide-react';
+import {
+  Menu,
+  X,
+  Github as GitHub,
+  Linkedin,
+  Mail,
+  ExternalLink,
+  ChevronRight,
+  Moon,
+  Sun,
+  ArrowUp,
+  Star
+} from 'lucide-react';
 import Hero from './components/Hero';
 import About from './components/About';
 import Skills from './components/Skills';
@@ -18,7 +30,6 @@ function App() {
     const handleScroll = () => {
       setShowScrollTop(window.scrollY > 500);
     };
-
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -54,18 +65,46 @@ function App() {
   ];
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'dark:bg-gray-900 dark:text-white' : 'bg-white text-gray-900'}`}>
+    <div
+      className={`min-h-screen transition-colors duration-300 ${
+        darkMode ? 'dark:bg-gray-900 dark:text-white' : 'bg-white text-gray-900'
+      }`}
+    >
       {/* Header */}
       <header className="fixed w-full bg-white dark:bg-gray-900 shadow-sm z-50 transition-colors duration-300">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            <div className="flex items-center">
-              <span className="text-2xl font-bold bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">
-                Moaz's Portfolio
-              </span>
+            {/* Left side: different layouts for desktop and mobile */}
+            <div>
+              {/* Desktop layout: Button on the left of the portfolio title */}
+              <div className="hidden md:flex items-center gap-3">
+                <button
+                  onClick={() => setShowGroqSidebar(true)}
+                  className="flex items-center gap-1 bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded-full shadow-lg transition-all"
+                >
+                  <Star size={18} />
+                  <span>Talk to Agent</span>
+                </button>
+                <span className="text-2xl font-bold bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">
+                  Moaz's Portfolio
+                </span>
+              </div>
+              {/* Mobile layout: Portfolio title on top and button below */}
+              <div className="flex flex-col items-start md:hidden">
+                <span className="text-2xl font-bold bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">
+                  Moaz's Portfolio
+                </span>
+                <button
+                  onClick={() => setShowGroqSidebar(true)}
+                  className="mt-2 flex items-center gap-1 bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded-full shadow-lg transition-all"
+                >
+                  <Star size={18} />
+                  <span>Talk to Agent</span>
+                </button>
+              </div>
             </div>
 
-            {/* Desktop Navigation */}
+            {/* Right side: Navigation */}
             <nav className="hidden md:flex items-center space-x-8">
               {navItems.map((item) => (
                 <button
@@ -107,7 +146,11 @@ function App() {
       </header>
 
       {/* Mobile menu */}
-      <div className={`fixed inset-0 z-50 md:hidden bg-white dark:bg-gray-900 transition-transform duration-300 ease-in-out transform ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div
+        className={`fixed inset-0 z-50 md:hidden bg-white dark:bg-gray-900 transition-transform duration-300 ease-in-out transform ${
+          mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
         <div className="flex items-center justify-between px-4 pt-4 pb-6">
           <div className="flex items-center">
             <span className="text-2xl font-bold bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">
@@ -155,21 +198,6 @@ function App() {
       >
         <ArrowUp size={20} />
       </button>
-
-      {/* Magical Star Icon to open GroqSidebar */}
-      {/* Talk to Agent Button */}
-      {!showGroqSidebar && (
-  <button
-    onClick={() => setShowGroqSidebar(true)}
-    className="fixed bottom-20 left-6 z-[10000] flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white p-3 rounded-full shadow-lg transition-all"
-    aria-label="Talk to the Agent"
-  >
-    <Star size={24} />
-    <span>Talk to the Agent</span>
-  </button>
-)}
-
-
 
       {/* GroqSidebar */}
       {showGroqSidebar && (
