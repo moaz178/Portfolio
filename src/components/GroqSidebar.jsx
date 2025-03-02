@@ -7,7 +7,6 @@ const groq = new Groq({
   dangerouslyAllowBrowser: true,
 });
 
-// Portfolio context with instructions.
 const portfolioContext = `
 You are Moaz’s portfolio assistant. Your responses should primarily be based on the following portfolio details. If a question is directly about the portfolio, use the details below to provide an answer. However, if the user's message is a simple greeting (e.g., "Hello", "How are you?") or an expression of appreciation, respond with a friendly greeting and ask if they need help with portfolio-related queries. For any other off-topic questions, reply with: "I can only help with portfolio-related questions." Use the details below as your knowledge base. If you don't find information in his portfolio, respond with "He might have done this, you can contact him for this specific information." Always provide answers in a beautiful and professional way with a soft tone, proper spacing, and punctuation. Stay relevant to the question.
 
@@ -71,13 +70,56 @@ const initialSuggestions = [
 ];
 
 const GroqSidebar = ({ open, onClose }) => {
-  const [query, setQuery] = useState('');
-  const [response, setResponse] = useState('');
+  // Use sessionStorage to restore state if available.
+  const [query, setQuery] = useState(
+    sessionStorage.getItem('portfolioAssistantQuery') || ''
+  );
+  const [response, setResponse] = useState(
+    sessionStorage.getItem('portfolioAssistantResponse') || ''
+  );
   const [loading, setLoading] = useState(false);
-  const [suggestions, setSuggestions] = useState(initialSuggestions);
+  const [suggestions, setSuggestions] = useState(
+    sessionStorage.getItem('portfolioAssistantSuggestions')
+      ? JSON.parse(sessionStorage.getItem('portfolioAssistantSuggestions'))
+      : initialSuggestions
+  );
   const [suggestionsOpacity, setSuggestionsOpacity] = useState(1);
 
-  // Function to submit a query (used by both the form and suggestion buttons)
+  // Persist state to sessionStorage.
+  useEffect(() => {
+    sessionStorage.setItem('portfolioAssistantQuery', query);
+  }, [query]);
+
+  useEffect(() => {
+    sessionStorage.setItem('portfolioAssistantResponse', response);
+  }, [response]);
+
+  useEffect(() => {
+    sessionStorage.setItem('portfolioAssistantSuggestions', JSON.stringify(suggestions));
+  }, [suggestions]);
+
+  // Clear sessionStorage on page refresh.
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      sessionStorage.removeItem('portfolioAssistantQuery');
+      sessionStorage.removeItem('portfolioAssistantResponse');
+      sessionStorage.removeItem('portfolioAssistantSuggestions');
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, []);
+
+  // Initialize conversation only if there's no saved response.
+  useEffect(() => {
+    if (open && !response) {
+      setResponse("Hello! I'm Moaz's portfolio assistant. How may I help you today?");
+      setSuggestions(initialSuggestions);
+      setSuggestionsOpacity(1);
+    }
+  }, [open, response]);
+
+  // Function to submit a query.
   const submitQuery = async (userQuery) => {
     setResponse('');
     setLoading(true);
@@ -102,7 +144,7 @@ const GroqSidebar = ({ open, onClose }) => {
         setResponse(accumulatedResponse);
       }
       
-      // After receiving the response, fetch dynamic suggestions.
+      // Update dynamic suggestions after receiving the response.
       await getDynamicSuggestions(userQuery, accumulatedResponse);
     } catch (error) {
       console.error('Error fetching AI response:', error);
@@ -136,20 +178,20 @@ Follow-up questions:
       });
       
       const suggestionsText = suggestionResult.choices[0]?.message?.content || "";
-      // Parse the suggestions; assume they are separated by newlines or numbering.
       const dynamicSuggestions = suggestionsText
         .split(/\r?\n/)
         .map(s => s.replace(/^\d+\.\s*/, '').trim())
         .filter(s => s.length > 0)
-        .slice(0, 2); // Only keep two suggestions.
+        .slice(0, 2);
       
       if (dynamicSuggestions.length > 0) {
-        // Fade out the current suggestions, update, then fade in.
         setSuggestionsOpacity(0);
         setTimeout(() => {
           setSuggestions(dynamicSuggestions);
           setSuggestionsOpacity(1);
         }, 300);
+      } else {
+        setSuggestions(initialSuggestions);
       }
     } catch (error) {
       console.error("Error fetching dynamic suggestions:", error);
@@ -168,18 +210,6 @@ Follow-up questions:
     setQuery(suggestion);
     await submitQuery(suggestion);
   };
-
-  // Greet the user when the sidebar is opened.
-  useEffect(() => {
-    if (open) {
-      setResponse("Hello! I'm Moaz's portfolio assistant. How may I help you today?");
-      setSuggestions(initialSuggestions);
-      setSuggestionsOpacity(1);
-    } else {
-      setResponse('');
-      setQuery('');
-    }
-  }, [open]);
 
   return (
     <div
@@ -215,7 +245,6 @@ Follow-up questions:
           </button>
         </form>
 
-        {/* Suggestive Prompts in two adaptive cards */}
         <div className="mt-4">
           <h3 className="text-lg font-semibold mb-2">Try asking:</h3>
           <div
@@ -241,12 +270,12 @@ Follow-up questions:
       </aside>
       <style jsx>{`
         .custom-scrollbar {
-          overflow-y: scroll;
-          -ms-overflow-style: none; /* IE and Edge */
-          scrollbar-width: none; /* Firefox */
+          overflow-y: auto;
+          -ms-overflow-style: none;
+          scrollbar-width: none;
         }
         .custom-scrollbar::-webkit-scrollbar {
-          display: none; /* Chrome, Safari and Opera */
+          display: none;
         }
       `}</style>
     </div>
