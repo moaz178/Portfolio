@@ -28,7 +28,7 @@ const About = () => {
             
             <div className="w-full md:w-2/3">
               <p className="text-lg text-gray-700 dark:text-gray-300 mb-4">
-                I'm a passionate Full Stack Developer with expertise in building modern web applications. With over 5 years of experience in the industry, I've worked on a variety of projects ranging from small business websites to complex enterprise applications.
+                I'm a passionate Full Stack Developer with expertise in building modern web applications. With over 3+ years of experience in the industry, I've worked on a variety of projects ranging from small business websites to complex enterprise applications.
               </p>
               <p className="text-lg text-gray-700 dark:text-gray-300 mb-4">
                 My journey in web development started when I was in college, and since then, I've been constantly learning and adapting to new technologies. I believe in writing clean, maintainable code and creating intuitive user experiences.
