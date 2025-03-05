@@ -76,7 +76,7 @@ const Contact = () => {
                 </div>
               </a>
               
-              {/* Email Block */}
+
               <a
                 href="https://mail.google.com/mail/?view=cm&fs=1&to=moazahmed6767@gmail.com"
                 target="_blank"
