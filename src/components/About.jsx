@@ -34,7 +34,7 @@ const About = () => {
                 My journey in web development started when I was in college, and since then, I've been constantly learning and adapting to new technologies. I believe in writing clean, maintainable code and creating intuitive user experiences.
               </p>
               <p className="text-lg text-gray-700 dark:text-gray-300">
-                When I'm not coding, you can find me hiking, reading books on technology and design, or experimenting with new recipes in the kitchen.
+                When I'm not coding, you can find me hiking, reading books on technology and design, or experimenting with new sports
               </p>
             </div>
           </div>

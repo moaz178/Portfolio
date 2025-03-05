@@ -18,7 +18,7 @@ import Skills from './components/Skills';
 import Projects from './components/Projects';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
-import GroqSidebar from './components/GroqSidebar';
+import GroqSidebar from './components/GenAI';
 
 function App() {
   const [darkMode, setDarkMode] = useState(true);
@@ -70,13 +70,10 @@ function App() {
         darkMode ? 'dark:bg-gray-900 dark:text-white' : 'bg-white text-gray-900'
       }`}
     >
-      {/* Header */}
       <header className="fixed w-full bg-white dark:bg-gray-900 shadow-sm z-50 transition-colors duration-300">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            {/* Left side: different layouts for desktop and mobile */}
             <div>
-              {/* Desktop layout: Button on the left of the portfolio title */}
               <div className="hidden md:flex items-center gap-3">
                 <button
                   onClick={() => setShowGroqSidebar(true)}
@@ -89,7 +86,6 @@ function App() {
                   Moaz's Portfolio
                 </span>
               </div>
-              {/* Mobile layout: Portfolio title on top and button below */}
               <div className="flex flex-col items-start md:hidden">
                 <span className="text-2xl font-bold bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">
                   Moaz's Portfolio
@@ -103,8 +99,6 @@ function App() {
                 </button>
               </div>
             </div>
-
-            {/* Right side: Navigation */}
             <nav className="hidden md:flex items-center space-x-8">
               {navItems.map((item) => (
                 <button
@@ -123,8 +117,6 @@ function App() {
                 {darkMode ? <Sun size={20} /> : <Moon size={20} />}
               </button>
             </nav>
-
-            {/* Mobile Menu Button */}
             <div className="flex items-center md:hidden">
               <button
                 onClick={() => setDarkMode(!darkMode)}
@@ -144,8 +136,6 @@ function App() {
           </div>
         </div>
       </header>
-
-      {/* Mobile menu */}
       <div
         className={`fixed inset-0 z-50 md:hidden bg-white dark:bg-gray-900 transition-transform duration-300 ease-in-out transform ${
           mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
@@ -177,8 +167,6 @@ function App() {
           ))}
         </div>
       </div>
-
-      {/* Main Content */}
       <main className="pt-16">
         <Hero scrollToSection={scrollToSection} />
         <About />
@@ -187,8 +175,6 @@ function App() {
         <Contact />
         <Footer />
       </main>
-
-      {/* Scroll to top button */}
       <button
         onClick={scrollToTop}
         className={`fixed right-6 bottom-6 p-3 rounded-full bg-indigo-600 text-white shadow-lg hover:bg-indigo-700 transition-all duration-300 ${
@@ -198,8 +184,6 @@ function App() {
       >
         <ArrowUp size={20} />
       </button>
-
-      {/* GroqSidebar */}
       {showGroqSidebar && (
         <GroqSidebar open={showGroqSidebar} onClose={() => setShowGroqSidebar(false)} />
       )}

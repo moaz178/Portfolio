@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import emailjs from 'emailjs-com';
 import { Mail, MapPin, Phone, Send } from 'lucide-react';
 
 const Contact = () => {
@@ -21,18 +22,24 @@ const Contact = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // Simulate form submission
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setSubmitSuccess(true);
-      setFormData({ name: '', email: '', subject: '', message: '' });
-      
-      // Reset success message after 5 seconds
-      setTimeout(() => {
-        setSubmitSuccess(false);
-      }, 5000);
-    }, 1500);
+
+   
+    emailjs.send('service_rswktfm', 'template_aqfr0f8', formData, '5QxFBB1hqDCc_ijdb')
+      .then((result) => {
+        setSubmitSuccess(true);
+        setFormData({ name: '', email: '', subject: '', message: '' });
+        setIsSubmitting(false);
+        setTimeout(() => {
+          setSubmitSuccess(false);
+        }, 5000);
+      }, (error) => {
+        setSubmitError(true);
+        setIsSubmitting(false);
+        // Reset error message after 5 seconds
+        setTimeout(() => {
+          setSubmitError(false);
+        }, 5000);
+      });
   };
 
   return (
@@ -71,24 +78,21 @@ const Contact = () => {
               
               {/* Email Block */}
               <a
-  href="https://mail.google.com/mail/?view=cm&fs=1&to=moazahmed6767@gmail.com"
-  target="_blank"
-  rel="noopener noreferrer"
-  className="flex items-start group"
->
-  <div className="flex-shrink-0">
-    <Mail className="h-6 w-6 text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-700 transition-colors duration-300" />
-  </div>
-  <div className="ml-4">
-    <p className="text-sm font-medium text-gray-900 dark:text-white group-hover:text-indigo-600">Email</p>
-    <p className="text-sm text-gray-700 dark:text-gray-300 mt-1 group-hover:text-indigo-600">
-      moazahmed6767@gmail.com
-    </p>
-  </div>
-</a>
-
-
-
+                href="https://mail.google.com/mail/?view=cm&fs=1&to=moazahmed6767@gmail.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-start group"
+              >
+                <div className="flex-shrink-0">
+                  <Mail className="h-6 w-6 text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-700 transition-colors duration-300" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white group-hover:text-indigo-600">Email</p>
+                  <p className="text-sm text-gray-700 dark:text-gray-300 mt-1 group-hover:text-indigo-600">
+                    moazahmed6767@gmail.com
+                  </p>
+                </div>
+              </a>
               
               {/* Phone Block */}
               <a 
@@ -110,7 +114,9 @@ const Contact = () => {
             <div className="mt-10">
               <h3 className="text-xl font-semibold mb-6 text-gray-900 dark:text-white">Follow Me</h3>
               <div className="flex space-x-4">
+                {/* Social links */}
                 <a href="#" className="p-2 bg-gray-100 dark:bg-gray-800 rounded-full text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-300">
+                  {/* Social Icon SVG */}
                   <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path fillRule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clipRule="evenodd" />
                   </svg>
@@ -137,7 +143,7 @@ const Contact = () => {
           <div className="lg:col-span-3 bg-white dark:bg-gray-900 rounded-lg shadow-lg p-8">
             <h3 className="text-xl font-semibold mb-6 text-gray-900 dark:text-white">Send Me a Message</h3>
             
-            {submitSuccess ? (
+            {submitSuccess && (
               <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900 rounded-lg p-4 mb-6">
                 <div className="flex">
                   <div className="flex-shrink-0">
@@ -152,9 +158,9 @@ const Contact = () => {
                   </div>
                 </div>
               </div>
-            ) : null}
+            )}
             
-            {submitError ? (
+            {submitError && (
               <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900 rounded-lg p-4 mb-6">
                 <div className="flex">
                   <div className="flex-shrink-0">
@@ -169,7 +175,7 @@ const Contact = () => {
                   </div>
                 </div>
               </div>
-            ) : null}
+            )}
             
             <form onSubmit={handleSubmit}>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">

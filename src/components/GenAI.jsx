@@ -3,9 +3,58 @@ import Groq from 'groq-sdk';
 import { ChevronRight } from 'lucide-react';
 
 const groq = new Groq({
-  apiKey: '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',
-  dangerouslyAllowBrowser: true,
+  apiKey: import.meta.env.VITE_GROQ_API_KEY,
+  dangerouslyAllowBrowser: true 
+
 });
+
+
+
+
+const MODELS = [
+  "llama-3.3-70b-versatile",
+  "deepseek-r1-distill-qwen-32b",
+  "gemma2-9b-it",
+  "qwen-2.5-32b",
+];
+
+function isRateLimitError(error) {
+  const message = (error?.message || "").toLowerCase();
+  return message.includes("rate limit") || message.includes("429");
+}
+
+async function chatCompletionWithFallback({
+  messages,
+  temperature,
+  max_completion_tokens,
+  top_p,
+  stream,
+  stop,
+}) {
+  let lastError = null;
+  for (const model of MODELS) {
+    try {
+      return await groq.chat.completions.create({
+        messages,
+        model,
+        temperature,
+        max_completion_tokens,
+        top_p,
+        stream,
+        stop,
+      });
+    } catch (error) {
+      lastError = error;
+      if (isRateLimitError(error)) {
+        console.warn(`Rate limit error with model "${model}". Trying next...`);
+        continue;
+      } else {
+        throw error;
+      }
+    }
+  }
+  throw lastError || new Error("All models are rate-limited or failed.");
+}
 
 const portfolioContext = `
 You are Moaz’s portfolio assistant. Your responses should primarily be based on the following portfolio details. If a question is directly about the portfolio, use the details below to provide an answer. However, if the user's message is a simple greeting (e.g., "Hello", "How are you?") or an expression of appreciation, respond with a friendly greeting and ask if they need help with portfolio-related queries. For any other off-topic questions, reply with: "I can only help with portfolio-related questions." Use the details below as your knowledge base. If you don't find information in his portfolio, respond with "He might have done this, you can contact him for this specific information." Always provide answers in a beautiful and professional way with a soft tone, proper spacing, and punctuation. Stay relevant to the question.
@@ -70,7 +119,6 @@ const initialSuggestions = [
 ];
 
 const GroqSidebar = ({ open, onClose }) => {
-  // Use sessionStorage to restore state if available.
   const [query, setQuery] = useState(
     sessionStorage.getItem('portfolioAssistantQuery') || ''
   );
@@ -85,8 +133,9 @@ const GroqSidebar = ({ open, onClose }) => {
   );
   const [suggestionsOpacity, setSuggestionsOpacity] = useState(1);
 
-  // Persist state to sessionStorage.
   useEffect(() => {
+console.log('import.meta.env:', import.meta.env);
+
     sessionStorage.setItem('portfolioAssistantQuery', query);
   }, [query]);
 
@@ -98,7 +147,6 @@ const GroqSidebar = ({ open, onClose }) => {
     sessionStorage.setItem('portfolioAssistantSuggestions', JSON.stringify(suggestions));
   }, [suggestions]);
 
-  // Clear sessionStorage on page refresh.
   useEffect(() => {
     const handleBeforeUnload = () => {
       sessionStorage.removeItem('portfolioAssistantQuery');
@@ -110,7 +158,6 @@ const GroqSidebar = ({ open, onClose }) => {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, []);
 
-  // Initialize conversation only if there's no saved response.
   useEffect(() => {
     if (open && !response) {
       setResponse("Hello! I'm Moaz's portfolio assistant. How may I help you today?");
@@ -119,32 +166,29 @@ const GroqSidebar = ({ open, onClose }) => {
     }
   }, [open, response]);
 
-  // Function to submit a query.
   const submitQuery = async (userQuery) => {
     setResponse('');
     setLoading(true);
     try {
-      const chatCompletion = await groq.chat.completions.create({
+      const chatCompletion = await chatCompletionWithFallback({
         messages: [
           { role: 'system', content: portfolioContext },
           { role: 'user', content: userQuery },
         ],
-        model: 'gemma2-9b-it',
         temperature: 1,
         max_completion_tokens: 1024,
         top_p: 1,
         stream: true,
         stop: null,
       });
-      
+
       let accumulatedResponse = '';
       for await (const chunk of chatCompletion) {
         const content = chunk.choices[0]?.delta?.content || '';
         accumulatedResponse += content;
         setResponse(accumulatedResponse);
       }
-      
-      // Update dynamic suggestions after receiving the response.
+
       await getDynamicSuggestions(userQuery, accumulatedResponse);
     } catch (error) {
       console.error('Error fetching AI response:', error);
@@ -153,7 +197,6 @@ const GroqSidebar = ({ open, onClose }) => {
     setLoading(false);
   };
 
-  // Function to generate dynamic follow-up suggestions.
   const getDynamicSuggestions = async (userQuery, answer) => {
     try {
       const suggestionPrompt = `
@@ -163,27 +206,26 @@ Agent answer: ${answer}
 Portfolio details (for reference): ${portfolioContext}
 Follow-up questions:
       `;
-      
-      const suggestionResult = await groq.chat.completions.create({
+
+      const suggestionResult = await chatCompletionWithFallback({
         messages: [
           { role: 'system', content: portfolioContext },
           { role: 'user', content: suggestionPrompt },
         ],
-        model: 'llama-3.3-70b-versatile',
         temperature: 1,
-        max_completion_tokens: 150,
+        max_completion_tokens: 500,
         top_p: 1,
         stream: false,
         stop: null,
       });
-      
+
       const suggestionsText = suggestionResult.choices[0]?.message?.content || "";
       const dynamicSuggestions = suggestionsText
         .split(/\r?\n/)
         .map(s => s.replace(/^\d+\.\s*/, '').trim())
         .filter(s => s.length > 0)
         .slice(0, 2);
-      
+
       if (dynamicSuggestions.length > 0) {
         setSuggestionsOpacity(0);
         setTimeout(() => {
@@ -198,14 +240,12 @@ Follow-up questions:
     }
   };
 
-  // Handle form submission.
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!query.trim()) return;
     await submitQuery(query);
   };
 
-  // Handle suggestion button click.
   const handleSuggestionClick = async (suggestion) => {
     setQuery(suggestion);
     await submitQuery(suggestion);
