@@ -75,13 +75,7 @@ function App() {
           <div className="flex justify-between items-center py-4">
             <div>
               <div className="hidden md:flex items-center gap-3">
-                <button
-                  onClick={() => setShowGroqSidebar(true)}
-                  className="flex items-center gap-1 bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded-full shadow-lg transition-all"
-                >
-                  <Star size={18} />
-                  <span>Talk to Agent</span>
-                </button>
+                {/* Talk to Agent button removed from header */}
                 <span className="text-2xl font-bold bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">
                   Moaz's Portfolio
                 </span>
@@ -90,13 +84,6 @@ function App() {
                 <span className="text-2xl font-bold bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">
                   Moaz's Portfolio
                 </span>
-                <button
-                  onClick={() => setShowGroqSidebar(true)}
-                  className="mt-2 flex items-center gap-1 bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded-full shadow-lg transition-all"
-                >
-                  <Star size={18} />
-                  <span>Talk to Agent</span>
-                </button>
               </div>
             </div>
             <nav className="hidden md:flex items-center space-x-8">
@@ -168,7 +155,10 @@ function App() {
         </div>
       </div>
       <main className="pt-16">
-        <Hero scrollToSection={scrollToSection} />
+        <Hero 
+          scrollToSection={scrollToSection} 
+          openGroqSidebar={() => setShowGroqSidebar(true)}
+        />
         <About />
         <Skills />
         <Projects />

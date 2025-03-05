@@ -18,10 +18,10 @@ const Skills = () => {
   ];
 
   const otherSkills = [
+    { name: 'GenAI', level: 85 },
     { name: 'Git', level: 85 },
     { name: 'Docker', level: 70 },
     { name: 'AWS', level: 65 },
-    { name: 'UI/UX Design', level: 75 },
     { name: 'Agile/Scrum', level: 80 },
   ];
 

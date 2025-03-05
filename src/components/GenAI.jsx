@@ -4,12 +4,8 @@ import { ChevronRight } from 'lucide-react';
 
 const groq = new Groq({
   apiKey: import.meta.env.VITE_GROQ_API_KEY,
-  dangerouslyAllowBrowser: true 
-
+  dangerouslyAllowBrowser: true
 });
-
-
-
 
 const MODELS = [
   "llama-3.3-70b-versatile",
@@ -134,8 +130,7 @@ const GroqSidebar = ({ open, onClose }) => {
   const [suggestionsOpacity, setSuggestionsOpacity] = useState(1);
 
   useEffect(() => {
-console.log('import.meta.env:', import.meta.env);
-
+    console.log('import.meta.env:', import.meta.env);
     sessionStorage.setItem('portfolioAssistantQuery', query);
   }, [query]);
 
@@ -199,14 +194,16 @@ console.log('import.meta.env:', import.meta.env);
 
   const getDynamicSuggestions = async (userQuery, answer) => {
     try {
+      // Ask the model for exactly two short follow-up questions, each on a new line.
       const suggestionPrompt = `
-Based on the conversation below, provide two very short follow-up questions (4-5 words max) to further explore Moaz's portfolio.
-User query: ${userQuery}
-Agent answer: ${answer}
-Portfolio details (for reference): ${portfolioContext}
-Follow-up questions:
-      `;
-
+  Based on the conversation below, provide exactly two short follow-up questions (8-9 words max) to further explore Moaz's portfolio.
+  Output ONLY the two questions, each on its own line, with no extra text or bullet points.
+  
+  User query: ${userQuery}
+  Agent answer: ${answer}
+  Portfolio details (for reference): ${portfolioContext}
+  `;
+  
       const suggestionResult = await chatCompletionWithFallback({
         messages: [
           { role: 'system', content: portfolioContext },
@@ -218,27 +215,46 @@ Follow-up questions:
         stream: false,
         stop: null,
       });
-
+  
+      // The raw text from the model
       const suggestionsText = suggestionResult.choices[0]?.message?.content || "";
-      const dynamicSuggestions = suggestionsText
+  
+      // --- POST-PROCESSING FIX ---
+      // 1) Split into lines
+      // 2) Trim & filter out empty lines
+      // 3) Keep only lines that end with '?'
+      // 4) Remove lines containing known filler text
+      // 5) Take only the first two lines
+      let lines = suggestionsText
         .split(/\r?\n/)
-        .map(s => s.replace(/^\d+\.\s*/, '').trim())
-        .filter(s => s.length > 0)
+        .map(line => line.trim())
+        .filter(Boolean)
+        .filter(line => line.endsWith('?'))
+        .filter(line => {
+          const lower = line.toLowerCase();
+          // Filter out lines that contain "alright", "<think>", or other filler
+          return !lower.includes('alright') && !lower.includes('<think>');
+        })
         .slice(0, 2);
-
-      if (dynamicSuggestions.length > 0) {
-        setSuggestionsOpacity(0);
-        setTimeout(() => {
-          setSuggestions(dynamicSuggestions);
-          setSuggestionsOpacity(1);
-        }, 300);
-      } else {
-        setSuggestions(initialSuggestions);
+  
+      // If we didn't get two valid lines, revert to initialSuggestions
+      if (lines.length < 2) {
+        lines = initialSuggestions;
       }
+  
+      // Fade out old suggestions, then update
+      setSuggestionsOpacity(0);
+      setTimeout(() => {
+        setSuggestions(lines);
+        setSuggestionsOpacity(1);
+      }, 300);
+  
     } catch (error) {
       console.error("Error fetching dynamic suggestions:", error);
+      setSuggestions(initialSuggestions);
     }
   };
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -308,6 +324,7 @@ Follow-up questions:
           <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{response}</p>
         </div>
       </aside>
+
       <style jsx>{`
         .custom-scrollbar {
           overflow-y: auto;

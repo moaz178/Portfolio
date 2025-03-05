@@ -19,14 +19,14 @@ const Footer = () => {
           
           <div className="flex space-x-6">
             <a 
-              href="#" 
+              href="https://github.com/moaz178/" 
               className="text-gray-400 hover:text-white transition-colors duration-300"
               aria-label="GitHub"
             >
               <GitHub size={20} />
             </a>
             <a 
-              href="#" 
+              href="https://www.linkedin.com/in/moaz-ahmad-ba4a52200/" 
               className="text-gray-400 hover:text-white transition-colors duration-300"
               aria-label="LinkedIn"
             >
@@ -40,7 +40,7 @@ const Footer = () => {
               <Twitter size={20} />
             </a>
             <a 
-              href="mailto:hello@example.com" 
+              href="https://mail.google.com/mail/?view=cm&fs=1&to=moazahmed6767@gmail.com" 
               className="text-gray-400 hover:text-white transition-colors duration-300"
               aria-label="Email"
             >
