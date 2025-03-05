@@ -194,7 +194,7 @@ const GroqSidebar = ({ open, onClose }) => {
 
   const getDynamicSuggestions = async (userQuery, answer) => {
     try {
-      // Ask the model for exactly two short follow-up questions, each on a new line.
+  
       const suggestionPrompt = `
   Based on the conversation below, provide exactly two short follow-up questions (8-9 words max) to further explore Moaz's portfolio.
   Output ONLY the two questions, each on its own line, with no extra text or bullet points.
@@ -216,15 +216,10 @@ const GroqSidebar = ({ open, onClose }) => {
         stop: null,
       });
   
-      // The raw text from the model
+    
       const suggestionsText = suggestionResult.choices[0]?.message?.content || "";
   
-      // --- POST-PROCESSING FIX ---
-      // 1) Split into lines
-      // 2) Trim & filter out empty lines
-      // 3) Keep only lines that end with '?'
-      // 4) Remove lines containing known filler text
-      // 5) Take only the first two lines
+
       let lines = suggestionsText
         .split(/\r?\n/)
         .map(line => line.trim())
@@ -232,17 +227,15 @@ const GroqSidebar = ({ open, onClose }) => {
         .filter(line => line.endsWith('?'))
         .filter(line => {
           const lower = line.toLowerCase();
-          // Filter out lines that contain "alright", "<think>", or other filler
+   
           return !lower.includes('alright') && !lower.includes('<think>');
         })
         .slice(0, 2);
-  
-      // If we didn't get two valid lines, revert to initialSuggestions
+
       if (lines.length < 2) {
         lines = initialSuggestions;
       }
-  
-      // Fade out old suggestions, then update
+
       setSuggestionsOpacity(0);
       setTimeout(() => {
         setSuggestions(lines);
